@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout full history (all branches + tags)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5   # v5 runs on Node 24 (no deprecation warning)
         with:
           fetch-depth: 0   # full history, not a shallow clone
 
@@ -64,7 +64,6 @@ jobs:
             fi
           done
           echo "CLEAN"
-          git log --all --format='%an <%ae>' | sort | uniq -c | grep -vi 'refs/original' || true
 
           # Push the cleaned heads + tags to the target repo, force (history is rewritten).
           git remote add target "https://x-access-token:${SYNC_TOKEN}@${TARGET}"
