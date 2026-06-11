@@ -18,7 +18,7 @@ jobs:
       - name: Checkout full history (all branches + tags)
         uses: actions/checkout@v5   # v5 runs on Node 24 (no deprecation warning)
         with:
-          fetch-depth: 0              # full history, not a shallow clone
+          fetch-depth: 0              # fetches ALL branches + tags + full history
           persist-credentials: false  # IMPORTANT: don't store the github-actions[bot]
                                        # token in git config; otherwise it overrides our
                                        # PAT on every github.com push and you get 403.
@@ -40,11 +40,9 @@ jobs:
             exit 1
           fi
 
-          # Belt-and-suspenders: drop any leftover Authorization header for github.com.
-          git config --unset-all http.https://github.com/.extraheader 2>/dev/null || true
-
-          # Make sure we have every branch as a local branch so all get rewritten.
-          git fetch origin '+refs/heads/*:refs/remotes/origin/*'
+          # checkout already fetched all branches/tags (fetch-depth: 0), so NO extra
+          # 'git fetch origin' here — origin has no credentials now and would fail.
+          # Just create a local branch for each already-fetched remote branch.
           for b in $(git branch -r | grep -v 'HEAD' | sed 's|origin/||'); do
             git branch --track "$b" "origin/$b" 2>/dev/null || true
           done
